@@ -1,5 +1,7 @@
 # TikTok Live Dashboard 🎥🔴
 
+![ScreenShoot](https://blog.classy.id/upload/gambar_berita/fccff53316a73627be5c5ff2a3fd4e35_20250327144425.png)
+
 ## Deskripsi Proyek
 Dashboard interaktif untuk memantau live streaming TikTok secara real-time dengan fitur:
 - Pelacakan live stream langsung
