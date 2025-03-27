@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Live Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <!-- Tambahkan HLS.js di bagian head -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.0/hls.min.js"></script>
+  <style>
+    :root {
+      --tiktok-black: #000000;
+      --tiktok-red: #fe2c55;
+      --tiktok-blue: #25f4ee;
+      --tiktok-white: #ffffff;
+      --tiktok-gray: #f1f1f2;
+      --tiktok-dark-gray: #333333;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    body {
+      background-color: var(--tiktok-black);
+      color: var(--tiktok-white);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      background-color: var(--tiktok-black);
+      color: var(--tiktok-white);
+      padding: 15px 0;
+      border-bottom: 1px solid #333;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .header img.logo {
+      height: 40px;
+      margin-right: 10px;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      background: linear-gradient(to right, var(--tiktok-blue), var(--tiktok-red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+    }
+    
+    .card {
+      background-color: var(--tiktok-dark-gray);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: var(--tiktok-white);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #555;
+      background-color: #222;
+      color: var(--tiktok-white);
+      border-radius: var(--border-radius);
+      font-size: 16px;
+    }
+    
+    .form-control::placeholder {
+      color: #777;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: var(--tiktok-red);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: #e6173d;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+    
+    .btn-block {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    
+    .status-online {
+      background-color: #00c26f;
+    }
+    
+    .status-offline {
+      background-color: var(--tiktok-red);
+    }
+    
+    .section-title {
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: var(--tiktok-white);
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-title i {
+      margin-right: 8px;
+      color: var(--tiktok-red);
+    }
+    
+    .info-row {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .info-label {
+      font-weight: bold;
+      margin-right: 5px;
+      color: #aaa;
+      min-width: 100px;
+    }
+    
+    .info-value {
+      color: var(--tiktok-white);
+      word-break: break-word;
+    }
+    
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -10px;
+    }
+    
+    .col-md-8 {
+      flex: 0 0 66.666667%;
+      max-width: 66.666667%;
+      padding: 0 10px;
+    }
+    
+    .col-md-4 {
+      flex: 0 0 33.333333%;
+      max-width: 33.333333%;
+      padding: 0 10px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      padding: 20px;
+      background-color: rgba(254, 44, 85, 0.1);
+      border-radius: var(--border-radius);
+      border: 1px solid var(--tiktok-red);
+    }
+    
+    .stats-box {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stats-box-title {
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #aaa;
+    }
+    
+    .stats-box-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--tiktok-white);
+    }
+    
+    .video-container {
+      width: 100%;
+      position: relative;
+      padding-top: 177.78%; /* 9:16 Aspect Ratio for portrait */
+      overflow: hidden;
+      background-color: #111;
+      border-radius: var(--border-radius);
+    }
+    
+    .video-container iframe,
+    .video-container video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      object-fit: cover;
+    }
+    
+    .timestamp {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+    
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      display: none;
+    }
+    
+    .loading-spinner {
+      border: 4px solid #333;
+      border-top: 4px solid var(--tiktok-red);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+      background-color: rgba(254, 44, 85, 0.1);
+      color: var(--tiktok-red);
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      display: none;
+      border: 1px solid var(--tiktok-red);
+    }
+    
+    .refresh-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--tiktok-red);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+    
+    .refresh-btn:hover {
+      background-color: #e6173d;
+    }
+    
+    .stats-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
+    
+    .stats-item {
+      text-align: center;
+    }
+    
+    .stats-item-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--tiktok-white);
+    }
+    
+    .stats-item-label {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .copy-link {
+      cursor: pointer;
+      color: var(--tiktok-blue);
+      text-decoration: underline;
+    }
+    
+    .copy-link:hover {
+      color: var(--tiktok-red);
+    }
+    
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 140px;
+      background-color: #555;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 150%;
+      left: 50%;
+      margin-left: -75px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #555 transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .auto-refresh-status {
+      font-size: 12px;
+      color: #888;
+      margin-top: 5px;
+      text-align: center;
+    }
+    
+    #countdown {
+      font-weight: bold;
+      color: var(--tiktok-red);
+    }
+    
+    .log-container {
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      background-color: #222;
+      color: #ccc;
+      padding: 10px;
+      border-radius: var(--border-radius);
+      border: 1px solid #444;
+      margin-top: 10px;
+    }
+    
+    .log-entry {
+      margin-bottom: 4px;
+      word-wrap: break-word;
+    }
+    
+    .log-error {
+      color: var(--tiktok-red);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-right: 15px;
+      object-fit: cover;
+    }
+    
+    .user-details {
+      flex: 1;
+    }
+    
+    .user-nickname {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .user-uniqueid {
+      color: #888;
+      font-size: 14px;
+    }
+    
+    .stream-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+    
+    .stream-details {
+      margin-bottom: 20px;
+    }
+    
+    .tiktok-info-box {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #444;
+    }
+    
+    @media (max-width: 768px) {
+      .row {
+        flex-direction: column;
+      }
+      
+      .col-md-8, .col-md-4 {
+        max-width: 100%;
+        flex: 0 0 100%;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <svg class="logo" width="40" height="40" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M500 1000C776.142 1000 1000 776.142 1000 500C1000 223.858 776.142 0 500 0C223.858 0 0 223.858 0 500C0 776.142 223.858 1000 500 1000Z" fill="black"/>
+        <path d="M643.64 232.123H544.996V692.721C544.996 725.971 518.308 752.659 485.058 752.659C451.808 752.659 425.12 725.971 425.12 692.721C425.12 659.471 451.808 632.783 485.058 632.783C496.989 632.783 508.176 636.022 517.619 641.714V542.107C507.187 539.851 496.292 538.628 485.058 538.628C399.6 538.628 330.965 607.263 330.965 692.721C330.965 778.179 399.6 846.813 485.058 846.813C570.516 846.813 639.151 778.179 639.151 692.721V414.491C672.112 440.273 713.373 455.345 758.876 455.345V356.722C692.059 356.722 643.64 301.592 643.64 232.123Z" fill="#25F4EE"/>
+        <path d="M644.375 412.906C677.336 438.688 718.597 453.76 764.1 453.76V355.137C763.161 355.137 762.229 355.113 761.29 355.088V408.55C715.787 408.55 674.525 393.478 641.565 367.696V645.926C641.565 731.384 572.93 800.019 487.472 800.019C449.714 800.019 415.173 786.238 388.652 763.688C418 791.198 457.866 807.937 501.909 807.937C587.367 807.937 656.002 739.302 656.002 653.844V375.631C688.962 401.413 730.224 416.485 775.727 416.485V362.042C769.204 362.042 763.578 361.634 757.684 361.11C753.303 360.719 748.872 360.152 644.375 412.906Z" fill="#FE2C55"/>
+        <path d="M388.652 763.688C351.108 731.227 330.965 687.037 330.965 638.042C330.965 552.584 399.6 483.949 485.058 483.949C496.292 483.949 507.187 485.172 517.619 487.428V483.983V386.45C507.683 384.194 497.28 382.971 486.537 382.971C401.079 382.971 332.444 451.606 332.444 537.064V683.063C332.444 724.5 348.606 761.8 375.171 789.345C343.343 761.849 321.91 721.511 321.91 676.5C321.91 591.042 390.545 522.407 476.003 522.407C487.237 522.407 498.132 523.63 508.565 525.886V427.278C499.122 421.586 487.934 418.347 476.003 418.347C442.753 418.347 416.065 445.035 416.065 478.285C416.065 511.535 442.753 538.223 476.003 538.223V637.846C390.545 637.809 321.945 706.444 321.945 791.902H321.91C321.91 724.534 370.329 669.404 437.146 669.404V570.781C410.918 570.781 388.652 763.688 388.652 763.688Z" fill="white"/>
+      </svg>
+      <h1>TikTok Live Dashboard</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="input-form" class="card">
+      <div class="form-group">
+        <label for="tiktok-username">Username TikTok atau URL Live:</label>
+        <input type="text" id="tiktok-username" class="form-control" placeholder="Contoh: @username atau https://www.tiktok.com/@username/live">
+      </div>
+      
+      <button id="check-button" class="btn btn-block">Lihat Live Stream</button>
+      
+      <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <span>Sedang memproses...</span>
+      </div>
+      
+      <div id="error-message" class="error-message"></div>
+      
+      <div id="log-container" class="log-container" style="display: none;">
+        <div id="log-content"></div>
+      </div>
+      
+      <div style="margin-top: 10px; text-align: right;">
+        <button id="toggle-log" class="btn btn-small" style="background-color: #333;">Tampilkan Log</button>
+      </div>
+    </div>
+    
+    <div id="result" style="display: none;">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="user-info">
+              <img id="user-avatar" src="" alt="User Avatar" class="user-avatar">
+              <div class="user-details">
+                <div class="user-nickname" id="user-nickname">Username</div>
+                <div class="user-uniqueid" id="user-uniqueid">@username</div>
+              </div>
+              <div id="status-badge" class="status status-online">ONLINE</div>
+            </div>
+            
+            <div class="stream-details">
+              <h2 class="stream-title" id="stream-title">TikTok Live Stream</h2>
+              <div class="timestamp" id="stream-datetime">Sedang memuat...</div>
+            </div>
+            
+            <div class="auto-refresh-status">
+              Auto-refresh: <span id="countdown">60</span> detik
+            </div>
+          </div>
+          
+          <!-- Stats Grid -->
+          <div class="card" style="display: none;">
+          <div class="section-title">
+            <i class="fas fa-chart-bar"></i> Statistik Live
+          </div>
+          <!-- Konten statistik disembunyikan -->
+          </div>
+          
+          <!-- TikTok Live Info -->
+          <div class="card">
+            <div class="section-title">
+              <i class="fas fa-info-circle"></i> Informasi Live
+            </div>
+            
+            <div class="tiktok-info-box">
+              <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value" id="live-status">ONLINE</span>
+              </div>
+              
+              <div class="info-row">
+                <span class="info-label">Room ID:</span>
+                <span class="info-value" id="room-id"></span>
+              </div>
+              
+              <div class="info-row">
+                <span class="info-label">Waktu:</span>
+                <span class="info-value" id="datetime"></span>
+              </div>
+              
+              <div class="info-row">
+                <span class="info-label">Stream URL:</span>
+                <span class="copy-link tooltip info-value" id="stream-url" onclick="copyToClipboard('stream-url')">
+                  <span class="tooltiptext" id="stream-url-tooltip">Klik untuk menyalin</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <!-- Video Player -->
+          <div class="card">
+            <div class="section-title">
+              <div>Live Stream</div>
+            </div>
+            
+            <div class="video-container">
+              <video id="livestream-player" controls autoplay playsinline>
+                <source id="video-source" src="" type="application/x-mpegURL">
+                Your browser does not support the video tag.
+              </video>
+              <button id="refresh-video" class="btn btn-small" style="position: absolute; top: 10px; right: 10px; z-index: 100;">
+                <i class="fas fa-sync"></i> Refresh Video
+              </button>
+            </div>
+            
+            <div class="stats-meta" style="display: none;">
+        <!-- Konten statistik disembunyikan -->
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="section-title">
+              <i class="fas fa-history"></i> Status Penyimpanan
+            </div>
+            
+            <div id="save-status" style="margin-bottom: 10px;">
+              Status penyimpanan data: <span id="save-status-text">-</span>
+            </div>
+            
+            <div class="form-group">
+              <button id="save-now-button" class="btn btn-block" style="background-color: var(--tiktok-blue);">
+                Simpan Data Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <a href="#" id="manual-refresh" class="refresh-btn" title="Refresh Data">
+        <i class="fas fa-sync-alt"></i>
+      </a>
+    </div>
+  </div>
+  
+  <script>
+    // Variabel untuk logging
+    let logEnabled = false;
+    
+    // Fungsi untuk menyalin teks ke clipboard
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      const tooltipId = elementId + '-tooltip';
+      
+      if (!text || text === '') return;
+      
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      
+      // Update tooltip text
+      document.getElementById(tooltipId).innerText = 'Disalin!';
+      
+      // Reset tooltip text after 2 seconds
+      setTimeout(function() {
+        document.getElementById(tooltipId).innerText = 'Klik untuk menyalin';
+      }, 2000);
+    }
+    
+    // Fungsi untuk menambahkan log
+    function addToLog(message, isError = false) {
+      const logContent = document.getElementById('log-content');
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry' + (isError ? ' log-error' : '');
+      logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+      logContent.appendChild(logEntry);
+      
+      // Auto scroll to bottom
+      const logContainer = document.getElementById('log-container');
+      logContainer.scrollTop = logContainer.scrollHeight;
+      
+      console.log(message);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const checkButton = document.getElementById('check-button');
+      const resultSection = document.getElementById('result');
+      const inputForm = document.getElementById('input-form');
+      const loadingDiv = document.getElementById('loading');
+      const errorDiv = document.getElementById('error-message');
+      const refreshButton = document.getElementById('manual-refresh');
+      const refreshVideoButton = document.getElementById('refresh-video');
+      const saveNowButton = document.getElementById('save-now-button');
+      const saveStatusText = document.getElementById('save-status-text');
+      const toggleLogButton = document.getElementById('toggle-log');
+      const logContainer = document.getElementById('log-container');
+      
+      let currentInput = '';
+      let autoRefreshInterval;
+      let countdownInterval;
+      let countdownValue = 60;
+      let currentLiveData = null;
+      
+      // Toggle log display
+      toggleLogButton.addEventListener('click', function() {
+        logEnabled = !logEnabled;
+        logContainer.style.display = logEnabled ? 'block' : 'none';
+        toggleLogButton.textContent = logEnabled ? 'Sembunyikan Log' : 'Tampilkan Log';
+      });
+      
+      // Berikan akses ke fungsi server untuk client
+      google.script.run
+        .withSuccessHandler(function(time) {
+          addToLog('Script berhasil di-load pada ' + time);
+        })
+        .withFailureHandler(function(error) {
+          addToLog('Gagal load script: ' + error.message, true);
+        })
+        .getScriptExecutionTime();
+      
+      checkButton.addEventListener('click', function() {
+        const tiktokUsername = document.getElementById('tiktok-username').value.trim();
+        
+        if (!tiktokUsername) {
+          showError('Silakan masukkan username TikTok atau URL live terlebih dahulu!');
+          return;
+        }
+        
+        currentInput = tiktokUsername;
+        
+        // Update status penyimpanan
+        saveStatusText.innerText = 'Menunggu data';
+        
+        // Tampilkan loading dan sembunyikan hasil sebelumnya
+        loadingDiv.style.display = 'flex';
+        resultSection.style.display = 'none';
+        errorDiv.style.display = 'none';
+        checkButton.disabled = true;
+        
+        addToLog('Memproses input: ' + tiktokUsername);
+        
+        // Panggil fungsi server untuk memproses live URL
+        google.script.run
+          .withSuccessHandler(function(response) {
+            loadingDiv.style.display = 'none';
+            checkButton.disabled = false;
+            
+            if (!response.success) {
+              addToLog('Gagal memproses input: ' + response.message, true);
+              showError(response.message || 'Terjadi kesalahan saat memproses input.');
+              return;
+            }
+            
+            addToLog('Berhasil mendapatkan data live stream');
+            currentLiveData = response.data;
+            displayLiveData(response.data, response.liveUrl);
+            inputForm.style.display = 'none';
+            resultSection.style.display = 'block';
+            
+            // Mulai auto-refresh tiap menit
+            startAutoRefresh();
+          })
+          .withFailureHandler(function(error) {
+            loadingDiv.style.display = 'none';
+            checkButton.disabled = false;
+            addToLog('Error saat memproses input: ' + error.message, true);
+            showError('Terjadi kesalahan: ' + error.message);
+          })
+          .processLiveUrl(tiktokUsername);
+      });
+      
+      refreshButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        refreshData();
+      });
+      
+      refreshVideoButton.addEventListener('click', function() {
+        const video = document.getElementById('livestream-player');
+        if (video) {
+          video.load();
+          video.play();
+          addToLog('Video player di-refresh');
+        }
+      });
+      
+      saveNowButton.addEventListener('click', function() {
+        if (!currentLiveData) {
+          addToLog('Tidak ada data live untuk disimpan', true);
+          return;
+        }
+        
+        saveNowButton.disabled = true;
+        saveNowButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+        
+        addToLog('Menyimpan data ke spreadsheet...');
+        
+        // Panggil fungsi server untuk menyimpan data
+        google.script.run
+          .withSuccessHandler(function(result) {
+            saveNowButton.disabled = false;
+            saveNowButton.innerHTML = 'Simpan Data Sekarang';
+            
+            if (result.success) {
+              saveStatusText.innerText = 'Berhasil disimpan pada ' + new Date().toLocaleTimeString();
+              saveStatusText.style.color = '#25f4ee';
+              addToLog('Data berhasil disimpan ke spreadsheet');
+            } else {
+              saveStatusText.innerText = 'Gagal: ' + result.message;
+              saveStatusText.style.color = '#fe2c55';
+              addToLog('Gagal menyimpan data: ' + result.message, true);
+            }
+          })
+          .withFailureHandler(function(error) {
+            saveNowButton.disabled = false;
+            saveNowButton.innerHTML = 'Simpan Data Sekarang';
+            saveStatusText.innerText = 'Error: ' + error.message;
+            saveStatusText.style.color = '#fe2c55';
+            addToLog('Error saat menyimpan data: ' + error.message, true);
+          })
+          .saveLiveDataToSheet(currentLiveData);
+      });
+      
+      function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        resultSection.style.display = 'none';
+      }
+      
+      function startAutoRefresh() {
+        // Bersihkan interval sebelumnya jika ada
+        if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        // Set auto refresh setiap 60 detik
+        countdownValue = 60;
+        document.getElementById('countdown').innerText = countdownValue;
+        
+        countdownInterval = setInterval(function() {
+          countdownValue--;
+          document.getElementById('countdown').innerText = countdownValue;
+          
+          if (countdownValue <= 0) {
+            countdownValue = 60;
+            document.getElementById('countdown').innerText = countdownValue;
+          }
+        }, 1000);
+        
+        autoRefreshInterval = setInterval(function() {
+          refreshData();
+        }, 60000); // Refresh setiap 60 detik
+        
+        addToLog('Auto-refresh diaktifkan (60 detik)');
+      }
+      
+      function refreshData() {
+        if (!currentInput) return;
+        
+        // Tampilkan loading
+        const tempButton = refreshButton.innerHTML;
+        refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        refreshButton.style.pointerEvents = 'none';
+        
+        // Reset countdown
+        countdownValue = 60;
+        document.getElementById('countdown').innerText = countdownValue;
+        
+        addToLog('Memperbarui data...');
+        
+        // Panggil fungsi server untuk memproses input
+        google.script.run
+          .withSuccessHandler(function(response) {
+            refreshButton.innerHTML = tempButton;
+            refreshButton.style.pointerEvents = 'auto';
+            
+            if (!response.success) {
+              addToLog('Gagal memperbarui data: ' + response.message, true);
+              showError(response.message || 'Terjadi kesalahan saat memproses input.');
+              return;
+            }
+            
+            addToLog('Data berhasil diperbarui');
+            currentLiveData = response.data;
+            displayLiveData(response.data, response.liveUrl);
+          })
+          .withFailureHandler(function(error) {
+            refreshButton.innerHTML = tempButton;
+            refreshButton.style.pointerEvents = 'auto';
+            addToLog('Error saat memperbarui data: ' + error.message, true);
+            showError('Terjadi kesalahan: ' + error.message);
+          })
+          .processLiveUrl(currentInput);
+      }
+      
+      function formatNumber(num) {
+        return new Intl.NumberFormat('id-ID').format(num);
+      }
+      
+      function displayLiveData(data, liveUrl) {
+        // Update user info
+        document.getElementById('user-nickname').innerText = data.nickname;
+        document.getElementById('user-uniqueid').innerText = '@' + data.uniqueId;
+        
+        // Jika ada avatar, tampilkan
+        if (data.coverUrl) {
+          document.getElementById('user-avatar').src = data.coverUrl;
+        } else {
+          // Default avatar
+          document.getElementById('user-avatar').src = 'https://sf16-scmcdn-va.ibytedtos.com/goofy/tiktok/web/node/_next/static/images/logo-dark-e95da587b6efa1520dcd11f4b45c0cf6.svg';
+        }
+        
+        // Update title dan status
+        document.getElementById('stream-title').innerText = data.title;
+        document.getElementById('stream-datetime').innerText = data.datetime;
+        document.getElementById('live-status').innerText = data.status;
+        document.getElementById('room-id').innerText = data.roomId;
+        document.getElementById('datetime').innerText = data.datetime;
+        
+        // Update URL stream
+        document.getElementById('stream-url').innerText = liveUrl;
+        
+        // Update statistik
+        
+        
+        // Update stats di bawah video
+        
+        
+        // Update video player
+        if (liveUrl) {
+          addToLog('Mengupdate video player dengan URL: ' + liveUrl);
+          
+          const videoSource = document.getElementById('video-source');
+          const videoPlayer = document.getElementById('livestream-player');
+          
+          // Tentukan tipe video (biasanya HLS/m3u8 untuk TikTok)
+          videoSource.type = 'application/x-mpegURL';
+          
+          try {
+            setupHlsPlayer(videoPlayer, liveUrl);
+            
+            // Set source langsung juga sebagai fallback
+            videoSource.src = liveUrl;
+            
+          } catch (e) {
+            addToLog('Error setup player: ' + e, true);
+            videoSource.src = liveUrl;
+            videoPlayer.load();
+            videoPlayer.play().catch(e => addToLog('Error memutar video: ' + e, true));
+          }
+        } else {
+          addToLog('Tidak ada live URL tersedia', true);
+        }
+      }
+      
+      function setupHlsPlayer(videoElement, url) {
+        try {
+          if (Hls.isSupported()) {
+            addToLog('Membuat HLS player dengan URL: ' + url);
+            
+            const hls = new Hls({
+              maxBufferLength: 30,
+              maxMaxBufferLength: 60,
+              debug: false
+            });
+            
+            hls.loadSource(url);
+            hls.attachMedia(videoElement);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+              addToLog('HLS Manifest berhasil diparse, memutar video...');
+              videoElement.play().catch(e => {
+                addToLog('Error autoplay: ' + e, true);
+              });
+            });
+            
+            hls.on(Hls.Events.ERROR, function(event, data) {
+              addToLog('HLS error: ' + data.type + ' - ' + data.details, true);
+              
+              if (data.fatal) {
+                addToLog('HLS error fatal: ' + data.type, true);
+                
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                  addToLog('Mencoba memulai ulang stream...', true);
+                  hls.startLoad();
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                  addToLog('Mencoba recover media error...', true);
+                  hls.recoverMediaError();
+                }
+              }
+            });
+          } else {
+            addToLog('HLS.js tidak didukung, menggunakan native playback');
+            videoElement.src = url;
+            videoElement.addEventListener('error', function(e) {
+              addToLog('Video player error: ' + (videoElement.error ? videoElement.error.code : 'unknown error'), true);
+            });
+            videoElement.play().catch(e => {
+              addToLog('Error memutar video: ' + e, true);
+            });
+          }
+        } catch (e) {
+          addToLog('Error dalam setupHlsPlayer: ' + e, true);
+          
+          // Fallback ke metode sederhana jika semua gagal
+          videoElement.src = url;
+          videoElement.play().catch(err => {
+            addToLog('Error fallback playback: ' + err, true);
+          });
+        }
+      }
+      
+      // Tambahkan global error handler
+      window.onerror = function(message, source, lineno, colno, error) {
+        console.error('Global error handler:', message, 'at', source, lineno, colno, error);
+        if (typeof addToLog === 'function') {
+          addToLog('Error: ' + message + ' at ' + source + ':' + lineno, true);
+        }
+        return false; // false = bubbling error tetap dilanjutkan
+      };
+    });
+  </script>
+</body>
+</html>
